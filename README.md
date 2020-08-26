@@ -76,6 +76,7 @@ TRUNCATE TABLE emp;
 DROP TABLE emp;
 ```
 
+
 # Практическое задание №2
 
 ```sql
@@ -131,7 +132,8 @@ INSERT INTO person (person_code, first_name, last_name, hiredate)
 VALUES ('VAN', 'Ivan', 'Ivanov', '2010-02-01'),
        ('SER', 'Sergey', 'Serov', '2020-08-07'),
        ('BAL', 'Alex', 'Balabanov', '2020-08-07'),
-       ('BOB', 'Vasiliy', 'Bobrov', '2010-01-01');
+       ('BOB', 'Vasiliy', 'Bobrov', '2010-01-01'),
+       ('SOL', 'Sokol', 'Soloviov', '2010-01-01');
 
 INSERT INTO product (product_name, product_price, quantity_on_hand, laststockdate)
 VALUES ('milk', 12.50, 2.5, '2020-08-05'),
@@ -150,6 +152,12 @@ VALUES ('milk', 'VAN', '2020-08-05', 3),
        ('beaf', 'SER', '2020-08-08', 2.5),
        ('tea', 'BAL', '2020-08-23', 20),
        ('cheese', 'SER', '2020-08-08', 23);
+
+INSERT INTO purchase_archive
+SELECT *
+FROM purchase;
+INSERT INTO purchase_archive (product_name, salesperson)
+VALUES ('milk', 'SOL');
 
 -- 1. Напишите запрос, полностью показывающий таблицу purchase.
 SELECT *
@@ -216,4 +224,61 @@ SELECT product_name, laststockdate FROM product WHERE product_name IN ('Small Wi
 -- drop table person;
 -- drop table product;
 -- drop table purchase_archive;
+```
+
+
+# Практическое задание №3
+
+```sql
+-- 1. Напишите запрос, выводящий декартово произведение таблиц product и purchase.
+SELECT product.*, purchase.*
+FROM product
+         CROSS JOIN purchase;
+
+-- 2. Напишите запрос, выводящий наименование проданного товара product_name,
+-- количество quantity (таблица purchase) и quantity_on_hand (таблица product).
+SELECT p.product_name, sum(quantity) qty, sum(quantity_on_hand) on_hand
+FROM product p
+         LEFT JOIN purchase pur on p.product_name = p.product_name
+GROUP BY p.product_name;
+
+-- 3.Напишите запрос, выводящий наименование товара product_name (таблица purchase),
+-- дату последней поставки laststockdate (таблица product) и фамилию продавца last_name (таблица person).
+SELECT pur.product_name, p.laststockdate, per.last_name
+FROM purchase pur
+         LEFT JOIN product p on pur.product_name = p.product_name
+         LEFT JOIN person per on pur.salesperson = per.person_code;
+
+-- 4. Напишите запрос, выводящий столбцы product_name, first_name, last_name внешнего объединения таблиц purchase и person.
+-- Используйте для таблиц короткие псевдонимы.
+SELECT product_name
+FROM purchase pur
+         FULL OUTER JOIN person p on pur.salesperson = p.person_code;
+SELECT product_name
+FROM purchase pur
+         LEFT OUTER JOIN person p on pur.salesperson = p.person_code;
+
+-- 5.Напишите запрос, который выводит коды продавцов salesperson из таблицы purchase_archive , которые не повторяются в таблице purchase.
+SELECT a.salesperson
+FROM purchase_archive a
+EXCEPT
+SELECT p.salesperson
+FROM purchase p;
+
+
+-- 6. Напишите запрос, который выводит коды только тех продавцов salesperson из таблицы purchase,
+-- которые так же содержаться в таблице purchase_archive.
+SELECT a.salesperson
+FROM purchase_archive a
+INTERSECT
+SELECT p.salesperson
+FROM purchase p;
+
+-- 7. Напишите запрос, который выводит все (в том числе повторяющиеся) коды продавцов salesperson
+-- из таблиц purchase и purchase_archive.
+SELECT a.salesperson
+FROM purchase_archive a
+UNION
+SELECT p.salesperson
+FROM purchase p;
 ```
