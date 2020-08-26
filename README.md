@@ -132,6 +132,7 @@ INSERT INTO person (person_code, first_name, last_name, hiredate)
 VALUES ('VAN', 'Ivan', 'Ivanov', '2010-02-01'),
        ('SER', 'Sergey', 'Serov', '2020-08-07'),
        ('BAL', 'Alex', 'Balabanov', '2020-08-07'),
+       ('SMT', 'Smith', 'Smith', '2010-01-01'),
        ('BOB', 'Vasiliy', 'Bobrov', '2010-01-01'),
        ('SOL', 'Sokol', 'Soloviov', '2010-01-01');
 
@@ -392,4 +393,35 @@ WHERE p.product_price < SOME (
              LEFT JOIN purchase pur on p.product_name = pur.product_name
     WHERE pur.salesperson = 'SER'
 );
+```
+
+# Практическое задание №6
+
+```sql
+-- 1. Использую функции для работы с датами и числами, посчитайте, сколько вам полных лет.
+DECLARE @startdate DATETIME;
+DECLARE @enddate DATETIME;
+SET @startdate = CONVERT(Datetime, '1988-08-28');
+SET @enddate = GETDATE();
+SELECT DATEDIFF(year, @startdate, @enddate) - case
+                                                  when month(@startdate) < month(@enddate)
+                                                      then 0
+                                                  when month(@startdate) > month(@enddate)
+                                                      then 1
+                                                  when day(@startdate) > day(@enddate)
+                                                      then 1
+                                                  else 0 end;
+
+-- 2. Выведите строку 'я ЗнаЮ тЕкСтовыЕ фУнкциИ' в верхнем и нижнем регистре.
+SELECT UPPER(N'я ЗнаЮ тЕкСтовыЕ фУнкциИ'), LOWER(N'я ЗнаЮ тЕкСтовыЕ фУнкциИ');
+
+-- 3. Узнайте длину этой строки.
+SELECT LEN('string');
+SELECT LEN(N'строка');
+
+-- 4. Работая со столбцом purchase.product_name, выведите:
+-- первые три символа
+-- все оставшиеся символы, начиная с четвёртого
+-- полную строку
+SELECT SUBSTRING(product_name, 0, 4), SUBSTRING(product_name, 4, LEN(product_name) - 3), product_name FROM product;
 ```
