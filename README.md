@@ -282,3 +282,38 @@ UNION
 SELECT p.salesperson
 FROM purchase p;
 ```
+
+# Практическое задание №4
+
+```sql
+-- 1. Напишите запрос, показывающий, какой будет цена продукта product_price после увеличения на 15%.
+SELECT product_name, product_price * 1.15 as new_price
+FROM product
+WHERE product_price IS NOT NULL;
+
+-- 2. Напишите запрос, показывающий, сколько всего имеется товаров в таблице product.
+SELECT count(*)
+FROM product;
+
+-- 3.Напишите запрос, показывающий, для какого количества товаров (таблица product) не указана цена.
+SELECT product_name
+FROM product
+WHERE product_price IS NULL;
+
+-- 4. Напишите запрос, выводящий минимальную и максимальную цену товаров product_price.
+SELECT min(product_price), max(product_price)
+FROM product;
+
+-- 5. Напишите запрос, показывающий, какая сумма была выручена с продаж товаров каждого наименования.
+SELECT pur.product_name, sum(quantity * p.product_price) as sum
+FROM purchase pur
+         LEFT JOIN product p on pur.product_name = p.product_name
+GROUP BY pur.product_name;
+
+-- 6. Напишите запрос, показывающий, какая сумма была выручена с продаж товаров каждого наименования. Вывести только те записи, для которых сумма продаж больше 125.
+SELECT pur.product_name, sum(quantity * p.product_price) as sum
+FROM purchase pur
+         LEFT JOIN product p on pur.product_name = p.product_name
+GROUP BY pur.product_name
+HAVING sum(quantity * p.product_price) > 125;
+```
