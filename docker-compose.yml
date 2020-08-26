@@ -1,0 +1,16 @@
+version: "3.6"
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=yourStrong(!)Password123
+    volumes:
+      - dbdata:/var/opt/mssql/data
+
+volumes:
+  dbdata:
