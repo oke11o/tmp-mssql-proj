@@ -317,3 +317,79 @@ FROM purchase pur
 GROUP BY pur.product_name
 HAVING sum(quantity * p.product_price) > 125;
 ```
+
+# Практическое задание №5
+
+```sql
+-- 1. Напишите запрос, который возвращает всех сотрудников, которых взяли на работу в то же день, что и сотрудника John Smith.
+-- Вариант 1
+SELECT *
+FROM person
+WHERE hiredate = (SELECT hiredate FROM person WHERE last_name = 'Smith');
+-- Вариант 2
+SELECT p1.*
+FROM person p1
+         RIGHT JOIN person p2 ON p1.hiredate = p2.hiredate AND p2.last_name = 'Smith'
+WHERE p1.person_code IS NOT NULL;
+
+-- 2. Напишите запрос, который возвращает все товары, цена которых ниже средней цены.
+SELECT product_price
+FROM product
+WHERE product_price < (SELECT avg(product_price) FROM product);
+
+-- 3. Напишите запрос, который возвращает все товары, которые продавались более одного раза.
+SELECT product_name
+FROM purchase
+GROUP BY product_name
+HAVING count(product_name) > 1;
+
+-- 4. Выведите увеличенную на 15% цену товаров, которые продавались более одного раза.
+-- Вариант 1
+SELECT p.product_name, p.product_price * 1.15 as new_price
+FROM purchase pur
+         LEFT JOIN product p on pur.product_name = p.product_name
+GROUP BY p.product_name, p.product_price
+HAVING count(p.product_name) > 1;
+
+-- Вариант 2
+SELECT product_name, product_price
+FROM product
+WHERE product_name IN (
+    SELECT product_name
+    FROM purchase
+    GROUP BY product_name
+    HAVING count(product_name) > 1);
+
+
+-- 5. Используя условие EXISTS, напишите запрос, который возвращает всех сотрудников, которые хотя бы один раз что-либо продали.
+SELECT *
+FROM person as p1
+WHERE EXISTS(
+              SELECT *
+              FROM purchase pur
+              WHERE pur.salesperson = p1.person_code
+          );
+
+-- 6. Напишите запрос, который возвращает все товары из таблицы product, цена которых меньше цены любого товара,
+-- проданного сотрудником с кодом 'GA'.
+-- Замечание. У меня нет сотрудника с кодом 'GA', буду использовать сотрудника с кодом SER
+SELECT *
+FROM product
+WHERE product_price < (
+    SELECT min(product_price)
+    FROM product p
+             LEFT JOIN purchase pur on p.product_name = pur.product_name
+    WHERE pur.salesperson = 'SER'
+);
+
+-- 7. напишите запрос, который вернет все товары из таблицы product, цена которых меньше цены хотя бы одного товара,
+-- проданного сотрудником с кодом 'GA'. Убедитесь, что операторы SOME и ANY взаимозаменяемы.
+SELECT *
+FROM product p
+WHERE p.product_price < SOME (
+    SELECT product_price
+    FROM product p
+             LEFT JOIN purchase pur on p.product_name = pur.product_name
+    WHERE pur.salesperson = 'SER'
+);
+```
